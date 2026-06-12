@@ -1,0 +1,12 @@
+[package]
+name = "quandary"
+version = "0.1.0"
+edition = "2021"
+description = "The Quandary programming language compiler (.qq -> LLVM IR -> native)"
+
+[[bin]]
+name = "quandary"
+path = "src/compiler.rs"
+
+[profile.release]
+opt-level = 2

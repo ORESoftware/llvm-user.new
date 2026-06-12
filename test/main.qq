@@ -1,0 +1,73 @@
+// ---------------------------------------------------------------------------
+// Quandary sample program.
+//
+// Demonstrates: first-class functions, lambdas, closures, the Option type
+// (no null / no NPEs), explicit `return` (no implicit return), if/else, while.
+// ---------------------------------------------------------------------------
+
+fn add(a: Int, b: Int) -> Int {
+  return a + b;
+}
+
+// higher-order: takes a function as a value and applies it
+fn apply(f: Fn(Int) -> Int, x: Int) -> Int {
+  return f(x);
+}
+
+// returns a closure that captures `n`
+fn make_adder(n: Int) -> Fn(Int) -> Int {
+  return fn(x: Int) -> Int { return x + n; };
+}
+
+// memory safety: division that cannot blow up — absence is an Option, not null
+fn safe_div(a: Int, b: Int) -> Option[Int] {
+  if (b == 0) {
+    return none[Int];
+  }
+  return some(a / b);
+}
+
+fn main() -> Int {
+  // first-class function: bind a top-level function to a variable, then call it
+  let g = add;
+  print(g(2, 3));               // 5
+
+  // lambda assigned to a variable
+  let double = fn(x: Int) -> Int { return x * 2; };
+  print(apply(double, 21));     // 42
+
+  // closure capturing a local
+  let add10 = make_adder(10);
+  print(add10(5));              // 15
+
+  // a closure capturing a closure (nested capture)
+  let bump = make_adder(100);
+  let pipe = fn(x: Int) -> Int { return add10(bump(x)); };
+  print(pipe(1));               // 1 + 100 + 10 = 111
+
+  // Option + match: the ONLY way to read the inner value
+  let ok = safe_div(20, 4);
+  let shown = match ok {
+    some(v) => v,
+    none => -1
+  };
+  print(shown);                 // 5
+
+  let bad = safe_div(1, 0);
+  let shown2 = match bad {
+    some(v) => v,
+    none => -1
+  };
+  print(shown2);                // -1
+
+  // explicit mutation + while loop
+  let sum = 0;
+  let i = 1;
+  while (i <= 5) {
+    sum = sum + i;
+    i = i + 1;
+  }
+  print(sum);                   // 15
+
+  return 0;
+}
